@@ -34,6 +34,7 @@ class documentLists():
         nos_of_documents = len(docsnameslist)
         #print nos_of_documents
 
+        # Check all the documents
         for i in range(nos_of_documents - 1):
             page = Page()
             filename = docsnameslist[i].split('/')[2]
@@ -41,8 +42,11 @@ class documentLists():
             page.url = "/wiki/" + filename
             stop_words = set(stopwords.words('english'))
 
+            # Then opens the docsnameslist and read it as file
             with open(docsnameslist[i], "r") as f:
-                reader = csv.reader(f, delimiter=" ")
+                # We use delimiter a one-character string used to separate fields
+                # in our case is white space
+                reader = csv.reader(f, delimiter=" ", quoting=csv.QUOTE_NONE)
                 for row in reader:
                     for word in row:
                        if word not in stop_words:
@@ -56,9 +60,8 @@ class documentLists():
 
                            page.words.append(word_id)
 
-
             with open(linksList[i], "r") as f:
-                reader = csv.reader(f, delimiter="\n")
+                reader = csv.reader(f, delimiter="\n", quoting=csv.QUOTE_NONE)
                 for row in reader:
                     for link in row:
                         page.links.append(link)
@@ -107,9 +110,9 @@ class documentLists():
 
     # We get the documents ids that we previously indexed
     # that include the word id we ask for in the search
-    def getDocuments(self, word_ids):
+    def getDocuments(self, words):
         pages = []
-        for word_id in word_ids:
+        for word_id in words:
             for page in self.pages:
                 if word_id in page.words:
                     if page not in pages:
@@ -119,7 +122,7 @@ class documentLists():
     # Run the PageRank algorithm for 20 iterations
     # then pass the values to search
     def pageRank(self):
-        MAX_ITERATIONS = 5
+        MAX_ITERATIONS = 20
         for i in range(0, MAX_ITERATIONS):
             print i
             for page in self.pages:
@@ -128,12 +131,12 @@ class documentLists():
                 # self
         return None
 
-    def pageRankPage(self, pr_page):
+    def pageRankPage(self, pagerank):
         pr = 0
         for page in self.pages:
-            if page.url != pr_page.url:
+            if page.url != pagerank.url:
                 for link in page.links:
-                    if link == pr_page.url:
+                    if link == pagerank.url:
                         # (PR1/links1 + PR2/links2 + ... + PRn/linksn)
                         pr += (page.pageRank / len(page.links))
 
